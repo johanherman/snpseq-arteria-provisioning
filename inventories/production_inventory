@@ -10,11 +10,7 @@ arteria-screening
 [arteria-master]
 arteria-master
 
-# We're not using arteria-nodes class for production but instead arteria-enabled-nodes
 [arteria-nodes]
-#mm-xart002
-
-[arteria-enabled-nodes]
 biotank5
 biotank6
 biotank7
@@ -32,15 +28,4 @@ bioscreen
 [arteria-remote]
 #testuppmax
 
-[biotanks]
-biotank5
-biotank6
-biotank7
-biotank8
-biotank9
-biotank10
-biotank11
-biotank12
-biotank13
-biotank14
 

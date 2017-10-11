@@ -1,0 +1,50 @@
+---
+
+# This all assumes that the sisyphus role has been run before this.
+- include: install.yml
+
+- name: ensure /etc/arteria/siswrap conf dir exists
+  file:
+    state: directory
+    path: "{{ arteria_siswrap_config_root }}"
+    owner: "{{ arteria_user }}"
+
+- name: deploying arteria-siswrap app config
+  template:
+    src: siswrap_app.config.j2
+    dest: "{{ arteria_siswrap_app_config }}"
+    owner: "{{ arteria_user }}"
+
+- name: deploying arteria-siswrap logger config
+  template:
+    src: siswrap_logger.config.j2
+    dest: "{{ arteria_siswrap_logger_config }}"
+    owner: "{{ arteria_user }}"
+  notify:
+     - restart siswrap
+
+- name: deploy arteria-siswrap supervisord config
+  template:
+    src: supervisor_arteria_siswrap.conf.j2
+    dest: /etc/supervisor/conf.d/siswrap.conf
+  notify:
+     - restart siswrap
+
+- name: Restart siswrap-ws
+  supervisorctl:
+    name: "siswrap-ws:"
+    state: restarted
+    supervisorctl_path: /usr/local/bin/supervisorctl
+
+# TODO: Make this prettier
+- name: create siswrap-ws-test for easy integration testing
+  command: bash -c "echo 'source {{ arteria_siswrap_env_root }}/bin/activate' > /usr/local/bin/siswrap-ws-test && echo 'py.test /arteria/arteria-siswrap/tests/integration/*.py' >> /usr/local/bin/siswrap-ws-test && chmod +x /usr/local/bin/siswrap-ws-test"
+  when: arteria_siswrap_run_tests
+  tags: skip_ansible_lint
+
+- name: running integration tests for siswrap...
+  shell: sleep 2 && /usr/local/bin/siswrap-ws-test
+  ignore_errors: true
+  when: arteria_siswrap_run_tests
+  tags: skip_ansible_lint
+

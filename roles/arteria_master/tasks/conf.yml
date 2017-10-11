@@ -1,0 +1,83 @@
+---
+
+# This user is atm only used when logging in to Arteria nodes.
+- name: Change the system user from the default stanley to our provision user
+  ini_file:
+    dest=/etc/st2/st2.conf
+    section=system_user
+    option=user
+    value={{ st2_system_user }}
+    backup=yes
+  notify:
+    - st2ctl restart
+
+# This key is atm only used when logging in to Milou.
+- name: Change the system user's SSH key
+  ini_file:
+    dest=/etc/st2/st2.conf
+    section=system_user
+    option=ssh_key_file
+    value="/home/{{ st2_system_user }}/.ssh/biotank_key"
+    backup=yes
+  notify:
+    - restart st2
+
+- name: Override paramiko setting (currently buggy)
+  ini_file:
+    dest=/etc/st2/st2.conf
+    section=ssh_runner
+    option=use_paramiko_ssh_runner
+    value=False
+    backup=yes
+  notify:
+    - restart st2
+
+- name: Ensure api is reachable from web-ui
+  ini_file:
+    dest=/etc/st2/st2.conf
+    section=api
+    option=allow_origin
+    value=http://{{ ansible_hostname }}:8080
+    backup=yes
+  notify:
+    - restart st2
+
+- name: Ensure loglevel of /etc/st2/logging.resultstracker.conf is not debug
+  ini_file:
+    dest: /etc/st2/logging.resultstracker.conf
+    section: handler_fileHandler
+    option: level
+    value: INFO
+    backup: yes
+  notify:
+    - restart st2
+
+- name: Increase TTL for st2 token to 1 week
+  ini_file:
+    dest=/etc/st2/st2.conf
+    section=auth
+    option=token_ttl
+    value={{ stackstorm_token_ttl }}
+    backup=yes
+  notify:
+    - st2ctl restart
+
+- name: Create log dir for arteria
+  file: path=/var/log/arteria/ state=directory owner={{ st2_system_user }} group={{ st2_system_user }} mode=0755
+
+- name: Ensure htpasswd file is not world readable
+  file: path=/etc/st2/htpasswd state=file mode=o-rwx owner=st2 group=st2
+
+- name: Ensure st2 conf is not world readable
+  file: path=/etc/st2/st2.conf state=file mode=o-rwx owner=st2 group=st2
+
+- name: Ensure mistral db sql is not world readable
+  file: path=/etc/mistral/init_mistral_db.SQL state=file mode=o-rwx owner=postgres group=postgres
+
+- name: Ensure mistral conf is not world readable
+  file: path=/etc/mistral/mistral.conf state=file mode=o-rwx owner=mistral group=mistral
+
+- name: deploy arteria-master logstash shipper
+  template: src=arteria_master_logstash.j2 dest=/etc/logstash/conf.d/arteria_master.conf
+  notify:
+    - restart logstash

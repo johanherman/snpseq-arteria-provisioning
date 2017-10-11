@@ -1,0 +1,26 @@
+---
+
+- name: Install latest st2 package
+  become: yes
+  become_method: sudo
+  apt:
+    name: st2
+    state: latest
+  when: st2_version == "stable"
+  notify:
+    - restart st2
+
+- name: Install latest st2 package
+  become: yes
+  become_method: sudo
+  apt:
+    name: st2={{ st2_version }}-{{ st2_revision }}
+    state: present
+  when: st2_version != "stable"
+  notify:
+    - restart st2
+
+- include: user.yml
+
+- include: config_auth.yml
+  when: enable_auth

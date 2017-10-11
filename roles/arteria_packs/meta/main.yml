@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: arteria_master, tags: ['arteria-master'] }

@@ -1,0 +1,24 @@
+---
+
+# TODO This is not pretty, and if someone has a better idea,
+#      please fix this. The problem is that for some reason
+#      it seems that certifi is not installed in the st2
+#      virtual env at this point. /JD 20170830
+- name: Make sure cerifi is installed
+  shell: "/opt/stackstorm/st2/bin/pip install certifi"
+
+- name: create backup of original ca bundles if it doesn't exist
+  shell: "mv -n {{ item }}/cacert.pem {{ item }}/cacert.pem_ansible_backup"
+  with_items: "{{ ca_path }}"
+  tags: skip_ansible_lint
+
+- name: upload irma's self-signed webproxy to arteria-master
+  copy: src="files/{{ irma_webproxy_cert }}" dest="{{ item }}/cacert.pem"
+  with_items: "{{ ca_path }}"
+
+- name: update stackstorm's (requests+certifi) ca bundle with irma webproxy cert
+  shell: "cat {{ item }}/cacert.pem_ansible_backup >> {{ item }}/cacert.pem"
+  with_items: "{{ ca_path }}"
+  notify: st2ctl restart
+  tags: skip_ansible_lint
+

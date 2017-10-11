@@ -1,0 +1,26 @@
+---
+arteria_environment: staging
+
+send_mail_from: mail@from
+send_mail_to: mail@to
+
+bcl2fastq_service_port: 10900
+siswrap_service_port: 10700
+runfolder_service_port: 10800
+
+arteria_user: arteria
+arteria_uid: 4242
+arteria_group: arteria
+arteria_gid: 4242
+
+arteria_sisyphus_user: arteria
+summary_host_user: [remote linux user]
+remote_host_user: [remote linux user]
+irma_host_user: [remote linux user]
+
+# Deploy the following development versions in staging enviroment.
+arteria_siswrap_repo: https://github.com/arteria-project/arteria-siswrap.git
+arteria_siswrap_version: v1.2.0
+arteria_bcl2fastq_version: devel
+
+

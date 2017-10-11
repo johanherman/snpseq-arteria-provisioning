@@ -1,0 +1,9 @@
+---
+
+## where runfolders reside
+## this is the same as the default value in the arteria_bcl2fastq and
+## arteria_runfolder roles, but as it is also used in the arteria_packs role
+## when being deployed on arteria-master, it needs to be defined outside of
+## those two roles
+runfolder_path: /data/{{ ansible_hostname }}/runfolders
+

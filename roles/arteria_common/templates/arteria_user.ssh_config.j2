@@ -1,0 +1,32 @@
+{% if arteria_environment in [ "prod", "staging"] %}
+
+host milou-b.uppmax.uu.se
+user {{ remote_host_user }}
+IdentityFile /home/{{ arteria_user }}/.ssh/biotank_key
+
+host nestor.uppmax.uu.se
+user {{ remote_host_user }}
+IdentityFile /home/{{ arteria_user }}/.ssh/biotank_key
+
+host mm-xlas002
+user seqsum
+IdentityFile /home/{{ arteria_user }}/.ssh/biotank_key
+
+host irma2.uppmax.uu.se
+user {{ irma_host_user }}
+IdentityFile /home/{{ arteria_user }}/.ssh/irma_biotank
+
+{% endif %}
+
+{% if arteria_environment == "dev" %}
+host testarteria-master testarteria1
+{% elif arteria_environment == "staging" %}
+host mm-xart001 mm-xart002
+{% else %}
+host arteria-master biotank*
+{% endif %}
+StrictHostKeyChecking no
+IdentityFile /home/arteria/.ssh/arteria_user.key
+UserKnownHostsFile=/dev/null
+user arteria
+LogLevel ERROR

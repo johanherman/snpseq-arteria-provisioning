@@ -1,0 +1,50 @@
+---
+
+- name: Setup the arteria master node
+  remote_user: root
+  hosts: arteria-master
+  roles:
+    - { role: locale, tags: arteria-locale } # Postgres requires en_US.UTF-8 locale
+    - { role: mongodb, tags: arteria-mongodb }
+    - { role: rabbitmq, tags: arteria-rabbitmq }
+    - { role: mistral, tags: arteria-mistral }
+    - { role: st2, tags: arteria-st2 }
+    - { role: st2web, tags: arteria-st2web }
+    - { role: arteria_common, tags: arteria-common }
+    - { role: arteria_master, tags: arteria-master }
+    - { role: arteria_packs, tags: arteria-packs } # arteria-packs have arteria-master as dependency for now
+
+- name: Setup the arteria processing nodes for test and staging
+  remote_user: root
+  hosts: arteria-nodes
+
+# Default for Arteria services is to install from Git. If we're in dev
+# mode, i.e. using arteria-nodes inventory, then arteria_environment
+# *should* be set to "dev", and then we want to pick up web service
+# sources from local mountpoint instead (helped by setup-arteria-dev.sh).
+#
+# The following values can be overriden on the command line though, if
+# one would like to install some components from Git and some from local
+# mount.
+#
+# Note that corresponding method for arteria-packs on arteria-master
+# doesn't work atm. I.e. On test systems it will only be fetched from
+# local mount, and on staging and production it will only be fetched
+# from Git.
+  pre_tasks:
+    - name: Pick sources from local mount point when in dev mode
+      set_fact:
+        arteria_bcl2fastq_sources: mount
+        arteria_runfolder_sources: mount
+        arteria_siswrap_sources: mount
+      when: arteria_environment == "dev"
+      tags: always
+
+  roles:
+    - { role: arteria_common, tags: arteria-common }
+    - { role: arteria_node, tags: arteria-node }
+    - { role: arteria_bcl2fastq, tags: arteria-bcl2fastq }
+    - { role: arteria_siswrap, tags: arteria-siswrap }
+    - { role: arteria_runfolder, tags: arteria-runfolder }
+    - { role: arteria_sisyphus, tags: arteria-sisyphus }
+

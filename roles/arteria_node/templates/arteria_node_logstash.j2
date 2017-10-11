@@ -1,0 +1,19 @@
+
+input {
+    file {
+        type => "syslog"
+        path => [ "/var/log/arteria/bcl2fastq-ws.log", "/var/log/arteria/runfolder.log", "/var/log/arteria/siswrap.log" ]
+        exclude => ["*.gz"]
+	tags => [ "arteria" ]
+    }
+}
+
+output {
+    lumberjack {
+      hosts => "{{ logstash_server_ip }}"
+      port => "{{ logstash_server_port }}"
+      ssl_certificate => "/etc/logstash/logstash-forwarder.crt"
+    }
+
+}
+

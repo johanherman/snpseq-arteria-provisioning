@@ -1,0 +1,28 @@
+---
+# tasks file for st2repos
+
+- name: Install prereqs
+  become: yes
+  become_method: sudo
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - debian-archive-keyring
+    - apt-transport-https
+
+- name: Add keys to keyring
+  become: yes
+  become_method: sudo
+  apt_key:
+    url: https://packagecloud.io/StackStorm/stable/gpgkey
+    state: present
+
+- name: Add StackStorm repos
+  become: yes
+  become_method: sudo
+  apt_repository:
+    repo: 'deb https://packagecloud.io/StackStorm/stable/ubuntu/ trusty main'
+    state: present
+    update_cache: yes

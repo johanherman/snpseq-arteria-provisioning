@@ -1,0 +1,4 @@
+---
+dependencies:
+  - { role: arteria_node, tags: ['arteria-node'] }
+  - { role: arteria_sisyphus, tags: ['arteria-sisyphus'] }

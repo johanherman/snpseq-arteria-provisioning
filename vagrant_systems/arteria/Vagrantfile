@@ -1,0 +1,91 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Script for bootstraping the keys to the virtual
+# machines.
+require_relative "../vagrant/key_authorization"
+
+Vagrant.configure(2) do |config|
+
+  # Ensure that the VMs can reach each other
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.ignore_private_ip = false
+
+  # Configure the stackstorm master node
+  config.vm.define "testarteria-master" do |master|
+
+    master.vm.box = "ubuntu/trusty64"
+    master.vm.box_version = "20150909.1.0"
+
+    master.vm.hostname = "testarteria-master"
+
+    authorize_key_for_root config, "root", '~/.ssh/id_dsa.pub', '~/.ssh/id_rsa.pub'
+
+    master.vm.network :private_network, ip: '192.168.42.52'
+
+    master.vm.synced_folder "../../src-arteria/arteria-packs/", "/arteria/arteria-packs"
+    master.vm.synced_folder "../../src-arteria/arteria-core/", "/arteria/arteria-core"
+    master.vm.synced_folder "../../src-arteria/arteria-bcl2fastq/", "/arteria/arteria-bcl2fastq"
+    master.vm.synced_folder "../../src-arteria/arteria-siswrap/", "/arteria/arteria-siswrap"
+    master.vm.synced_folder "../../src-arteria/arteria-runfolder/", "/arteria/arteria-runfolder"
+    master.vm.synced_folder "../../src-arteria/arteria-checksum/", "/arteria-checksum"
+
+    master.vm.provider "virtualbox" do |v|
+      v.memory = 2048
+      v.cpus = 2
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
+  end
+
+  # Configure the biotank stand-in
+  config.vm.define "testarteria1" do |testtank|
+
+    testtank.vm.box = "puppetlabs/centos-6.6-64-puppet"
+
+    authorize_key_for_root config, 'root', '~/.ssh/id_dsa.pub', '~/.ssh/id_rsa.pub'
+
+    testtank.vm.provider "virtualbox" do |v|
+      v.memory = 8000
+      v.cpus = 4
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+
+    testtank.vm.hostname = "testarteria1"
+    testtank.vm.network :private_network, ip: '192.168.42.53'
+
+    testtank.vm.synced_folder "../../src-arteria/arteria-packs/", "/arteria/arteria-packs"
+    testtank.vm.synced_folder "../../src-arteria/arteria-core/", "/arteria/arteria-core"
+    testtank.vm.synced_folder "../../src-arteria/arteria-bcl2fastq/", "/arteria/arteria-bcl2fastq"
+    testtank.vm.synced_folder "../../src-arteria/arteria-siswrap/", "/arteria/arteria-siswrap"
+    testtank.vm.synced_folder "../../src-arteria/arteria-runfolder/", "/arteria/arteria-runfolder"
+    testtank.vm.synced_folder "../../src-arteria/arteria-checksum/", "/arteria-checksum"
+
+    # By default this box has iptables enabled on all ports
+    # since the Ansible provisioning does not handle firewall configuration
+    # at the moment we need to ensure that all services can be accessed
+    # anyway. We do this by dropping the reject all rule here:
+    config.vm.provision "shell", inline: "sudo iptables -D INPUT 5; echo 0;"
+
+  end
+
+  # Configure the uppmax stand-in
+  config.vm.define "testuppmax" do |testuppmax|
+
+    testuppmax.vm.box = "puppetlabs/centos-6.6-64-puppet"
+    testuppmax.vm.hostname = "testuppmax-sm"
+
+    authorize_key_for_root config, "root", '~/.ssh/id_dsa.pub', '~/.ssh/id_rsa.pub'
+
+    testuppmax.vm.network :private_network, ip: '192.168.42.54'
+
+  end
+
+end
+#Vagrant.configure(2) do |config|
+#
+#  # Enable root login for snpseq provisioning
+#  config.vm.provision "shell", inline: "sudo mkdir -p /root/.ssh/ && chmod 700 /root/.ssh/ && cat /home/vagrant/.ssh/key.pub >> /root/.ssh/authorized_keys"
+#
+#end

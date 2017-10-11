@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+export ST2_AUTH_TOKEN=`st2 auth -t -p {{ st2_auth_password }} {{ st2_auth_username }}`
+echo $ST2_AUTH_TOKEN

@@ -1,0 +1,8 @@
+---
+
+# File limit for biotank group seqwriters (users arteria/seqdata/seqanalysis). 
+# Needed for some bcl2fastq runs. 
+# FIXME: This should be put in a more appropriate place when biotank and
+# arteria-enabled-hosts roles/group_vars have been merged. 
+biotank_file_limit: 102400
+

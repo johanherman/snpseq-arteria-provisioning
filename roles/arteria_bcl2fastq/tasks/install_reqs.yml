@@ -1,0 +1,15 @@
+---
+- name: download illumina bcl2fastq zip
+  get_url: url="https://support.illumina.com/content/dam/illumina-support/documents/downloads/software/bcl2fastq/bcl2fastq2-v2-19-1-linux.zip"
+           dest=/tmp/bcl2fastq.zip
+
+- name: extract illumina bcl2fastq zip
+  unarchive: src=/tmp/bcl2fastq.zip
+             remote_src=yes
+             dest=/tmp/
+
+- name: install illumina bcl2fastq
+  yum:
+    name: /tmp/bcl2fastq2-v2.19.1.403-Linux-x86_64.rpm
+    state: present
+

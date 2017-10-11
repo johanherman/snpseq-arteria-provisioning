@@ -1,0 +1,19 @@
+# Virtual test machines defined in the Vagrant file
+
+[arteria:children]
+arteria-master
+arteria-nodes
+arteria-enabled-nodes
+arteria-remote
+
+[arteria-master]
+testarteria-master
+
+[arteria-nodes]
+testarteria1
+
+[arteria-enabled-nodes]
+testtank1
+testtank2 
+
+

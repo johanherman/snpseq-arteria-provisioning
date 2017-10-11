@@ -1,0 +1,5 @@
+- name: st2ctl restart
+  shell: sleep 10 && st2ctl restart
+
+- name: restart logstash
+  service: name=logstash state=restarted

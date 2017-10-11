@@ -1,0 +1,39 @@
+---
+- name: select git sources
+  set_fact:
+    arteria_runfolder_sources_path: "/usr/src/arteria-runfolder"
+  when: arteria_runfolder_sources == "git"
+
+- name: select mounted sources
+  set_fact:
+    arteria_runfolder_sources_path: "/arteria/arteria-runfolder"
+  when: arteria_runfolder_sources == "mount"
+
+- name: get arteria-runfolder from git
+  git:
+    repo: "{{ arteria_runfolder_repo }}"
+    dest: /usr/src/arteria-runfolder
+    version: "{{ arteria_runfolder_version }}"
+  when: arteria_runfolder_sources == "git"
+
+- name: install arteria-runfolder requirements
+  pip:
+      requirements: "{{ arteria_runfolder_sources_path }}/requirements/dev"
+      chdir: "{{ arteria_runfolder_sources_path }}"
+      virtualenv: "{{ arteria_runfolder_env_root }}"
+      virtualenv_command: /usr/local/bin/virtualenv
+      state: present
+      extra_args: "-U"
+
+- name: install arteria-runfolder
+  pip:
+      name: .
+      chdir: "{{ arteria_runfolder_sources_path }}"
+      virtualenv: "{{ arteria_runfolder_env_root }}"
+      virtualenv_command: /usr/local/bin/virtualenv
+      state: present
+      extra_args: "-U"
+
+- name: change file owner of arteria-runfolder
+  file: path="{{ arteria_runfolder_env_root }}" owner="{{ arteria_user }}" recurse=yes
+

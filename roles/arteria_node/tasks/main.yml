@@ -1,0 +1,7 @@
+---
+
+- include: dependencies.yml
+  tags: arteria-node-dependencies
+
+- include: conf.yml
+  tags: arteria-node-conf

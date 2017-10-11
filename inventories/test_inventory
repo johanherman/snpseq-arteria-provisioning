@@ -1,16 +1,5 @@
 # Virtual test machines defined in the Vagrant file
 
-[biotanks]
-testtank1
-testtank2
-
-[biotanks:vars]
-# Override these configurations in the test machines.
-sisyphus_remote_host=10.10.10.60
-remote_user=our_remote_user
-sisyphus_summary_host=10.10.10.55
-disable_strict_host_checking=true
-
 [arteria:children]
 arteria-master
 arteria-nodes

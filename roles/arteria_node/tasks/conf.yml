@@ -1,0 +1,55 @@
+- name: ensure /var/log/arteria dir exists
+  file:
+    state: directory
+    path: /var/log/arteria
+    owner: "{{ arteria_user }}"
+
+- name: ensure /etc/arteria dir exists
+  file:
+    state: directory
+    path: /etc/arteria
+    owner: "{{ arteria_user }}"
+
+- name: ensure /opt/arteria dir exists with proper owner
+  file:
+    state: directory
+    path: /opt/arteria
+    owner: "{{ arteria_user }}"
+
+- name: append the seqwriters group to arteria user
+  user: name={{ arteria_user }} groups={{ biotank_super_group.name }} append=yes
+  when: biotank_super_group is defined
+
+- name: ensure /home/arteria is readable by seqwriters group
+  file:
+    state: directory
+    path: "/home/{{ arteria_user }}"
+    group: "{{ biotank_super_group.name }}"
+    mode: "u=rwx,g=rxs"
+  when: biotank_super_group is defined
+
+- name: ensure data folder is readable by bioinformaticians on staging system
+  file: path=/data/{{ ansible_hostname }} group=bioinformatician mode=2771 state=directory
+  when: ansible_hostname == "mm-xart002"
+  tags: skip_ansible_lint
+
+- name: ensure scratch folder is readable by bioinformaticians on staging system
+  file: path=/data/scratch recurse=yes group=bioinformatician mode=2771 state=directory
+  when: ansible_hostname == "mm-xart002"
+  tags: skip_ansible_lint
+  # TODO: Inspect why the linter is warning about this octal nr. Does it perhaps something
+  # todo with the combination of "2", "state=directory" and "recurse=yes"?
+
+- name: deploy arteria node logstash shipper
+  template: src=arteria_node_logstash.j2 dest=/etc/logstash/conf.d/arteria_node.conf owner=logstash group=logstash mode=0644
+  notify:
+    - restart logstash
+
+- name: Deploy hiseq rsync filter
+  copy: src=hiseq.rsync dest=/etc/arteria/misc/ owner={{ arteria_user }}
+
+- name: Deploy ngi rsync filter
+  copy: src=ngi.rsync dest=/etc/arteria/misc/ owner={{ arteria_user }}
+
+- name: Deploy summary rsync filter
+  copy: src=summary.rsync dest=/etc/arteria/misc/ owner={{ arteria_user }}

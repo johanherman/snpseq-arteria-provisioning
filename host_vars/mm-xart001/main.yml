@@ -1,0 +1,71 @@
+---
+
+# See comments in group_vars for more details/context 
+
+arteria_environment: staging
+
+send_mail_from: mail@from
+send_mail_to: mail@to
+
+bcl2fastq_service_port: 10900
+siswrap_service_port: 10700
+runfolder_service_port: 10800
+
+arteria_user: arteria
+arteria_uid: 4242
+arteria_group: arteria
+arteria_gid: 4242
+
+arteria_user_key: "/home/{{ arteria_user }}/.ssh/arteria_user.key"
+arteria_nodes: "mm-xart002,mm-xart003"
+
+arteria_sisyphus_user: arteria
+summary_host_user: [remote linux user]
+remote_host_user: [remote linux user]
+irma_host_user: [remote linux user]
+
+st2_version: 2.0.1
+st2_revision: 3
+st2web_revision: 2
+mistral_version: 2.0.1-3
+
+st2_system_user: arteria
+st2_system_user_in_sudoers: no
+
+hermes_base_url: [url to samplesheet staging microservice]
+hermes_user: [cleartext user]
+
+summary_host: [hostname to statistics host for uploads]
+summary_destination: [path on host where we put general statistics from staging runs]
+summary_ngi_pipeline_reports_destination: [where we put specific statistics from staging runs]
+
+remote_host: [hostname for legacy hpc cluster]
+remote_destination: [path on legacy hpc cluster where we uploaded staging runfolders]
+
+nestor_remote_path: [path on legacy hpc cluster nr 2 where we uploaded staging runfolders]
+irma_remote_path: [path on current hpc cluster where we upload staging runfolders]
+irma_reports_remote_path: [path on current hpc cluster for staging runfolder reports]
+ngi_pipeline_url: [url to remote hpc cluster where staging pipelines can be started]
+
+irma_checksum_base_url: [url to remote hpc cluster where staging version of checksum service listens]
+irma_siswrap_base_url: [url to remote hpc cluster where staging version of siswrap service listens]
+irma_delivery_service_url: [url to remote hpc cluster where staging version of delivery service listens]
+
+postgresql_logging_collector: on
+postgresql_log_directory: /var/log/postgresql
+
+remote_sisyphus_location: [path on legacy remote hpc cluster where sisyphus sw was located for remote shell commands]
+
+#arteria_packs_repo: https://github.com/johanherman/arteria-packs.git
+arteria_packs_version: master
+arteria_packs_repo: https://github.com/arteria-project/arteria-packs.git
+#arteria_packs_version: v2.5
+
+check_cert_slack_channel: "#bottest"
+delivery_workflow_status_slack_channel: '#bottest'
+charon_status_report_slack_channel: "#bottest"
+charon_base_url: [url to staging version of statistics webservice]
+
+supr_api_user: [clear text username]
+supr_api_url: [url to staging version of webservice handling project/delivery metadata]
+

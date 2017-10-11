@@ -1,0 +1,48 @@
+---
+
+- name: deploy token script
+  template: src=gettoken.j2 dest=/usr/local/bin/gettoken owner=arteria mode=0500 # only arteria should be able to read file due to password inside
+
+# TODO: Switch to this later when it works specifying tags/releases.
+#- name: install arteria-packs on staging/prod
+#  shell: ST2_AUTH_TOKEN=`gettoken` st2 run packs.install packs=arteria-packs repo_url={{ arteria_packs_repo }} branch={{ arteria_packs_version }}
+#  when: arteria_environment in [ "prod", "staging"]
+
+# For staging and production; will be mounted locally for dev box.
+- name: create arteria-packs directory
+  file: dest=/arteria/arteria-packs state=directory
+  when: arteria_environment in [ "prod", "staging" ]
+
+- name: get arteria-packs from github
+  git:
+    repo: "{{ arteria_packs_repo }}"
+    version: "{{ arteria_packs_version }}"
+    dest: /arteria/arteria-packs/
+    force: yes
+  when: arteria_environment in [ "prod", "staging" ]
+
+- name: deploy production workflow config
+  template: src=config.yaml.j2 dest=/arteria/arteria-packs/config.yaml
+
+- name: symlink arteria-packs to stackstorm
+  file: src=/arteria/arteria-packs/ dest=/opt/stackstorm/packs/arteria-packs owner=root group=root state=link
+
+# This is needed because handlers are run last, after all tasks are finished,
+# which is obviously too late for us
+- name: Run dummy command that triggers restart of services
+  command: /bin/true
+  notify:
+    - restart st2
+    - Restart nginx
+  tags: skip_ansible_lint
+
+- name: Force a manual (re)start of st2 services so we can register arteria-packs components
+  meta: flush_handlers
+
+- name: Setup virtualenv for arteria-packs
+  shell: export ST2_AUTH_TOKEN=`gettoken` && /arteria/arteria-packs/scripts/setup-virtualenv
+  tags: skip_ansible_lint
+
+- name: Register arteria-packs
+  shell: export ST2_AUTH_TOKEN=`gettoken` && /arteria/arteria-packs/scripts/register
+  tags: skip_ansible_lint

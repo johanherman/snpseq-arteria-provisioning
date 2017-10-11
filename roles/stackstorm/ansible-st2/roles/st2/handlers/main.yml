@@ -1,0 +1,15 @@
+- name: restart st2
+  become: true
+  become_method: sudo
+  command: "{{ item }}"
+  with_items:
+    - st2ctl reload --register-all
+    - st2ctl restart
+
+- name: restart st2api/st2stream
+  become: true
+  become_method: sudo
+  command: "st2ctl restart-component {{ item }}"
+  with_items:
+    - st2api
+    - st2stream

@@ -1,0 +1,27 @@
+---
+
+- include: conf.yml
+  tags: arteria-master-conf
+
+- include: db_dump.yml
+  tags: arteria-master-dbdump
+
+- include: irma_webproxy_cert.yml
+  tags: arteria-webproxy-cert
+
+- name: install required system packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - collectl # used for performance monitoring
+    - collectl-utils
+    - python-yaml # used for runfolder_search.py script in arteria-packs
+  when: ansible_os_family == "Debian"
+
+# To upgrade these packages they can be unhold with the command "apt-mark unhold <package>"
+# To list all hold packages use "apt-mark showhold"
+- name: hold st2 packages so that we do not accidentaly upgrade them
+  shell: apt-mark hold st2 st2mistral st2web nginx
+  tags: skip_ansible_lint

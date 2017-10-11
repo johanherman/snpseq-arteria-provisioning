@@ -1,0 +1,33 @@
+---
+
+- include: install.yml
+  tags: runfolder_install
+
+- include: install_config.yml
+  tags: runfolder_install
+
+# run it again, but with a different set of variables to set up the service
+# that watches the 'incoming' folder where runfolders are uploaded to
+- include: install_config.yml
+     arteria_runfolder_config_root="{{ arteria_incoming_config_root }}"
+     arteria_runfolder_app_config="{{ arteria_incoming_app_config }}"
+     arteria_runfolder_logger_config="{{ arteria_incoming_logger_config }}"
+     arteria_runfolder_supervisord_config="{{ arteria_incoming_supervisord_config }}"
+     runfolder_path="{{ incoming_path }}"
+     runfolder_service_port="{{ incoming_service_port }}"
+     runfolder_ws="{{ incoming_ws }}"
+  tags: runfolder_install
+
+- name: Restart runfolder-ws
+  supervisorctl:
+    name: "{{ item }}:"
+    state: restarted
+    supervisorctl_path: /usr/local/bin/supervisorctl
+  with_items:
+    - "{{ runfolder_ws }}"
+    - "{{ incoming_ws }}"
+
+- include: integration_test.yml
+  tags: runfolder_integration_test
+  when: arteria_environment == "dev"
+

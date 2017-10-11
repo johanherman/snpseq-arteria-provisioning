@@ -1,0 +1,50 @@
+---
+- include: install_reqs.yml
+
+- include: install.yml
+
+- name: ensure bcl2fastq log dir exists
+  file:
+    state: directory
+    path: "{{ bcl2fastq_logs_path }}"
+    owner: "{{ arteria_user }}"
+
+- name: ensure /etc/arteria/bcl2fastq dir exists
+  file:
+    state: directory
+    path: "{{ arteria_bcl2fastq_config_root}}"
+    owner: "{{ arteria_user }}"
+
+- name: place arteria-bcl2fastq config file in "{{ arteria_bcl2fastq_app_config }}"
+  template:
+    src: bcl2fastq_app.config.j2
+    dest: "{{ arteria_bcl2fastq_app_config }}"
+    owner: "{{ arteria_user }}"
+
+- name: place arteria-bcl2fastq config file in "{{ arteria_bcl2fastq_logger_config }}"
+  template:
+    src: bcl2fastq_logger.config.j2
+    dest: "{{ arteria_bcl2fastq_logger_config }}"
+    owner: "{{ arteria_user }}"
+
+- name: deploy arteria-bcl2fastq supervisord config
+  template:
+    src: supervisor_arteria_bcl2fastq.conf.j2
+    dest: /etc/supervisor/conf.d/bcl2fastq.conf
+    owner: "{{ arteria_user }}"
+
+- name: Restart bcl2fastq-ws
+  supervisorctl:
+    name: "bcl2fastq-ws:"
+    state: restarted
+    supervisorctl_path: /usr/local/bin/supervisorctl
+
+# TODO: Make this prettier
+- name: create bcl2fastq-ws-test for easy integration testing
+  command: bash -c "echo 'source {{ arteria_bcl2fastq_env_root }}/bin/activate' > /usr/local/bin/bcl2fastq-ws-test && echo 'nosetests /arteria/arteria-bcl2fastq/tests/integration' >> /usr/local/bin/bcl2fastq-ws-test && chmod +x /usr/local/bin/bcl2fastq-ws-test"
+  when: arteria_bcl2fastq_run_tests
+
+- name: running integration tests for bcl2fastq...
+  shell: sleep 2 && /usr/local/bin/bcl2fastq-ws-test
+  ignore_errors: true
+  when: arteria_bcl2fastq_run_tests

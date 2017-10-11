@@ -1,0 +1,9 @@
+- name: Install dependencies
+  become: true
+  become_method: sudo
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - mongodb-server

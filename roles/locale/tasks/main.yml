@@ -1,0 +1,12 @@
+---
+
+- name: deploy a default locale
+  copy: src=locale dest=/etc/default/locale
+
+- name: generate en_us-utf8 locale
+  command: locale-gen en_US.UTF-8
+  tags: skip_ansible_lint
+
+- name: update locale db
+  command: dpkg-reconfigure locales
+  tags: skip_ansible_lint

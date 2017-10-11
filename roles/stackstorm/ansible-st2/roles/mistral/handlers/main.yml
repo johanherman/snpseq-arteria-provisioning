@@ -1,0 +1,6 @@
+- name: restart mistral
+  become: true
+  become_method: sudo
+  service:
+    name: mistral
+    state: restarted

@@ -1,0 +1,14 @@
+- name: deploy SSH private key for arteria user for UPPMAX and mm-xlas002 access
+  copy: src=files/biotank_key dest=/home/{{ arteria_user }}/.ssh/ owner={{ arteria_user }} group={{ arteria_user }} mode=0600
+
+- name: deploy SSH public key for arteria user for UPPMAX and mm-xlas002 access
+  copy: src=files/biotank_key.pub dest=/home/{{ arteria_user }}/.ssh/ owner={{ arteria_user }} group={{ arteria_user }} mode=0600
+
+- name: copy ssh private key for irma to host
+  copy: src=files/irma_keys/{{ ansible_hostname }} dest=/home/{{ arteria_user }}/.ssh/irma_biotank owner={{ arteria_user }} group={{ arteria_user }} mode=0600
+
+- name: copy ssh public key for irma to host
+  copy: src=files/irma_keys/{{ ansible_hostname }}.pub dest=/home/{{ arteria_user }}/.ssh/irma_biotank.pub owner={{ arteria_user }} group={{ arteria_user }} mode=0600
+
+- name: copy ssh cert for irma to host
+  copy: src=files/irma_keys/{{ ansible_hostname }}-cert.pub dest=/home/{{ arteria_user }}/.ssh/irma_biotank-cert.pub owner={{ arteria_user }} group={{ arteria_user }} mode=0600

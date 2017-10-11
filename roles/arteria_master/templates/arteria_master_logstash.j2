@@ -1,0 +1,20 @@
+
+input {
+    file {
+        type => "syslog"
+        path => [ "/var/log/st2/st2*.audit.log" ]
+        exclude => ["*.gz"]
+	tags => [ "arteria-master" ]
+        start_position => beginning
+    }
+}
+
+output {
+    lumberjack {
+      hosts => "{{ logstash_server_ip }}"
+      port => "{{ logstash_server_port }}"
+      ssl_certificate => "/etc/logstash/logstash-forwarder.crt"
+    }
+
+}
+

@@ -1,0 +1,39 @@
+
+# Setup different Arteria user keys if we're in a Vagrant testbox or staging/production
+
+- name: Set path to Arteria keys in production and staging
+  set_fact:
+    arteria_user_privkey: files/arteria_user.key
+    arteria_user_pubkey: files/arteria_user.key.pub
+  when: arteria_environment in [ "prod", "staging" ]
+
+- name: Set path to Arteria keys in staging
+  set_fact:
+    arteria_user_privkey: files/arteria_user.dev.key
+    arteria_user_pubkey: files/arteria_user.dev.key.pub
+  when: arteria_environment == "dev"
+
+- name: Check if private key exists
+  local_action: stat path={{ playbook_dir }}/{{ arteria_user_privkey }}
+  register: privkey
+  when: arteria_environment == "dev"
+  tags: skip_ansible_lint
+
+- name: Generate new arteria private key for dev purposes
+  local_action: command /usr/bin/ssh-keygen -f {{ playbook_dir }}/{{ arteria_user_privkey }} -C "arteria user dev key" -P ""
+  when: arteria_environment == "dev" and privkey is defined and not privkey.stat.exists
+  tags: skip_ansible_lint
+
+- name: Deploy SSH private key for arteria user
+  copy: src={{ arteria_user_privkey }} dest=/home/{{ arteria_user }}/.ssh/arteria_user.key owner={{ arteria_user }} group={{ arteria_user }} mode=0600
+
+- name: Deploy SSH public key for arteria user
+  copy: src={{ arteria_user_pubkey }} dest=/home/{{ arteria_user }}/.ssh/arteria_user.key.pub owner={{ arteria_user }} group={{ arteria_user }} mode=0600
+
+- name: Get our public key
+  shell: cat /home/{{ arteria_user }}/.ssh/arteria_user.key.pub
+  register: pubkey
+  tags: skip_ansible_lint
+
+- name: Add key to authorized keys for arteria user
+  lineinfile: dest="/home/{{ arteria_user }}/.ssh/authorized_keys" owner="{{ arteria_user }}" line="{{ pubkey.stdout }}" create=yes

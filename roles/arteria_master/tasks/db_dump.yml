@@ -1,0 +1,16 @@
+---
+
+- name: create postgresql dump dir
+  file: path={{ psql_dump_path }} state=directory owner={{ psql_user }}
+
+- name: create mongodb dump dir
+  file: path={{ mongo_dump_path }}/ state=directory owner={{ mongo_user }}
+
+- name: create arteria dump dir
+  file: path={{ arteria_dump_path }} state=directory
+
+- name: setup crontab to dump postgresql db each hour (backed up daily by tsm)
+  cron: name="dump postgresql db" minute="45" user="{{ psql_user }}" job="/usr/bin/pg_dumpall | /bin/gzip > {{ psql_dump_path }}/`/bin/date +\%H`_arteria-master-db_pg_dumpall.sql.gz"
+
+- name: setup crontab to dump mongodb each hour (backed up daily by tsm)
+  cron: name="dump mongodb" minute="50" user="{{ mongo_user }}" job="cd {{ mongo_dump_path }} && /usr/bin/mongodump && /bin/tar cfz `/bin/date +\%H`_arteria_master-db_mongodb_dumpall.bson.tar.gz dump/ && /bin/rm -rf dump/"

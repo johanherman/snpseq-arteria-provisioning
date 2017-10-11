@@ -1,0 +1,91 @@
+---
+# Look into arteria-packs/config.yaml for the expected key/values
+
+hermes_base_url: {{ hermes_base_url }}
+hermes_user: {{ hermes_user }}
+hermes_token: {{ hermes_token }}
+
+summary_host: {{ summary_host }}
+summary_user: {{ summary_host_user }}
+summary_host_key: {{ remote_host_key }}
+summary_destination: {{ summary_destination }}
+summary_ngi_pipeline_reports_destination: {{ summary_ngi_pipeline_reports_destination  }}
+
+biotank_hosts: {{ arteria_nodes }}
+biotank_user: {{ arteria_user }}
+biotank_user_key: {{ arteria_user_key }}
+check_cert_slack_channel: "{{ check_cert_slack_channel }}"
+
+remote_host: {{ remote_host }}
+remote_user: {{ remote_host_user }}
+remote_host_key: {{ remote_host_key }}
+remote_destination: {{ remote_destination }}
+remote_sisyphus_location: {{ remote_sisyphus_location }}
+
+ngi_pipeline_url: {{ ngi_pipeline_url }}
+nestor_remote_path: {{ nestor_remote_path }}
+
+irma_remote_path: {{ irma_remote_path }}
+irma_api_key: {{ irma_api_key }}
+irma_checksum_base_url: {{ irma_checksum_base_url }}
+irma_siswrap_base_url: {{ irma_siswrap_base_url  }}
+irma_reports_remote_path: {{ irma_reports_remote_path }}
+delivery_service_url: {{ irma_delivery_service_url }}
+
+irma_replace_expressions:
+  - 's/UPPNEX_PROJECT: a2009002/UPPNEX_PROJECT: ngi2016001/'
+  - 's/UPPNEX_QOS: seqver/#UPPNEX_QOS: seqver/'
+
+send_mail_to: {{ send_mail_to }}
+
+runfolder_service_port: {{ runfolder_service_port }}
+bcl2fastq_service_port: {{ bcl2fastq_service_port }}
+siswrap_service_port: {{ siswrap_service_port }}
+
+# The service URL polled in the runfolder sensor:
+runfolder_svc_urls:
+{% if ansible_hostname == 'mm-xart001' %}
+{% for host in groups['arteria-nodes'] %}
+  - http://{{ host }}:{{ runfolder_service_port }}/api/1.0/runfolders/pickup
+{% endfor %}
+{% elif ansible_hostname == 'arteria-master' or ansible_hostname == 'testarteria-master' %}
+{% for host in groups['arteria-enabled-nodes'] %}
+  - http://{{ host }}:{{ runfolder_service_port }}/api/1.0/runfolders/pickup
+{% endfor %}
+{% endif %}
+
+incoming_svc_urls:
+{% if ansible_hostname == 'mm-xart001' %}
+{% for host in groups['arteria-nodes'] %}
+  - url: http://{{ host }}:{{ incoming_service_port }}/api/1.0/runfolders/next
+    dest_folder: {{ hostvars[host]['runfolder_path'] }}
+    remote_user: {{ arteria_user }}
+    user_key: {{ arteria_user_key }}
+{% endfor %}
+{% elif ansible_hostname == 'arteria-master' or ansible_hostname == 'testarteria-master' %}
+{% for host in groups['arteria-enabled-nodes'] %}
+  - url: http://{{ host }}:{{ incoming_service_port }}/api/1.0/runfolders/next
+    dest_folder: {{ hostvars[host]['runfolder_path'] }}
+    remote_user: {{ arteria_user }}
+    user_key: {{ arteria_user_key }}
+{% endfor %}
+{% endif %}
+
+charon_api_token: {{ charon_api_token }}
+charon_base_url: {{ charon_base_url }}
+slack_webhook_url: {{slack_webhook_url }}
+charon_status_report_slack_channel: "{{ charon_status_report_slack_channel }}"
+delivery_workflow_status_slack_channel: '{{ delivery_workflow_status_slack_channel }}'
+
+supr_api_user: {{ supr_api_user }}
+supr_api_key: {{ supr_api_key }}
+supr_api_url: {{ supr_api_url }} 
+
+# String of file paths to exclude from the compressed archive (egrep syntax)
+archive_excludes: "\"'{{ pdc_archive_excludes }}'\""
+# Which file entries we should not link to when creating the archive copy of the runfolder
+archive_exclude_links: {{ pdc_archive_exclude_links }} 
+# Number of fastq files to expect when creating archive. If we find less files than this 
+# then the action will fail. 
+archive_fastq_threshold: {{ pdc_archive_fastq_threshold }}
+archive_python_path: {{ pdc_archive_python_path }}

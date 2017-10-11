@@ -1,0 +1,11 @@
+---
+
+port: {{ siswrap_service_port }}
+sender: {{ send_mail_from }}
+receiver: {{ send_mail_to }}
+report_bin: {{ arteria_siswrap_env_root }}/deps/sisyphus/sisyphus-latest/quickReport.pl
+qc_bin: {{ arteria_siswrap_env_root }}/deps/sisyphus/sisyphus-latest/qcValidateRun.pl
+checkindices: {{ arteria_siswrap_env_root }}/deps/sisyphus/sisyphus-latest/checkIndices.pl
+version_bin: {{ arteria_siswrap_env_root }}/deps/sisyphus/sisyphus-latest/version.pl
+runfolder_root: {{ runfolder_path }}/
+perl: /usr/bin/perl

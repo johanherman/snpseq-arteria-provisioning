@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: arteria_node, labels: [arteria-node] }

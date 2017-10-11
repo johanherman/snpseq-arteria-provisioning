@@ -1,0 +1,24 @@
+
+- name: add main user group
+  group: name={{ arteria_group }} gid={{ arteria_gid }} state=present
+
+- name: add main user
+  user: name={{ arteria_user }} uid={{ arteria_uid }} group={{ arteria_group }} state=present  password={{ arteria_user_password }} update_password=always
+
+- name: Make sure ssh dir for arteria user exists
+  file: path=/home/{{ arteria_user }}/.ssh/ state=directory owner={{ arteria_user }} group={{ arteria_user }}
+
+- include: prod_keys.yml
+  when: arteria_environment in [ "prod", "staging" ]
+  tags: arteria-keys
+
+- include: arteria_user_keys.yml
+  tags: arteria-keys
+
+- name: Deploy SSH config for arteria user
+  template: src=arteria_user.ssh_config.j2 dest=/home/{{ arteria_user }}/.ssh/config owner={{ arteria_user }} group={{ arteria_user }} mode=0600
+  tags: arteria-keys
+
+- name: Ensure that all files in home dir are actually owned by the arteria group
+  file: path="/home/{{ arteria_user }}" group="{{ arteria_group }}" recurse=yes
+

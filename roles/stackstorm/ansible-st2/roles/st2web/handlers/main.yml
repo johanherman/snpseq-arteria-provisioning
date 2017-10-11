@@ -1,0 +1,13 @@
+---
+# handlers file for st2web
+- name: restart st2
+  become: true
+  become_method: sudo
+  command: st2ctl restart
+
+- name: Restart nginx
+  become: yes
+  become_method: sudo
+  service:
+     name: nginx
+     state: restarted

@@ -1,0 +1,25 @@
+---
+
+arteria_environment: prod
+
+# Used when a workflow finishes/aborts 
+send_mail_from: from@address
+send_mail_to: to@address
+
+bcl2fastq_service_port: 10900
+siswrap_service_port: 10700
+runfolder_service_port: 10800
+incoming_service_port: 10850
+
+arteria_user: arteria # the main arteria user that runs microservices on compute nodes 
+arteria_uid: 4242
+arteria_group: arteria
+arteria_gid: 4242
+
+arteria_user_key: "/home/{{ arteria_user }}/.ssh/arteria_user.key"
+
+arteria_sisyphus_user: arteria # owner of files belonging to the sisyphys sw
+summary_host_user: [linux user on internal summary/statistics host for uploads]
+remote_host_user: [linux user on remote legacy hpc cluster for uploads]
+irma_host_user: [linux user on remote hpc cluster for uploads]
+

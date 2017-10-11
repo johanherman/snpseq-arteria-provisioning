@@ -1,0 +1,20 @@
+# Our staging environment
+
+# should be empty
+[biotanks]
+
+# should be empty
+[arteria-enabled-nodes]
+
+[arteria-screening]
+
+[arteria:children]
+arteria-master
+arteria-nodes
+
+[arteria-master]
+mm-xart001.medsci.uu.se
+
+[arteria-nodes]
+mm-xart002.medsci.uu.se
+

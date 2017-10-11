@@ -1,0 +1,14 @@
+---
+
+# Modifications of the default CA bundle
+ca_path:
+  - /opt/stackstorm/st2/lib/python2.7/site-packages/requests
+  - /opt/stackstorm/st2/lib/python2.7/site-packages/certifi
+irma_webproxy_cert: irma_webproxy_cert.pem
+
+# DB dump settings
+psql_dump_path: /var/postgresql_dumps/
+mongo_dump_path: /var/mongodb_dumps/
+arteria_dump_path: /var/arteria_dumps/
+mongo_user: mongodb
+psql_user: postgres
